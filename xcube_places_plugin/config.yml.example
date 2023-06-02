@@ -1,19 +1,20 @@
 # adapt to your needs and save as config.yml
 
-xcube_places:
-  Postgrest_url:  <geoDB-PostGREST server url>
-  Postgrest_port: <geoDB-PostGREST server port>
-  Client_id:      <your client id>
-  Client_secret:  <your client secret>
-  Auth_domain:    <your auth domain>
+XcubePlaces:
+  GeoDBConf:
+    PostgrestUrl:  <geoDB-PostGREST server url>
+    PostgrestPort: <geoDB-PostGREST server port>
+    ClientId:      <your client id>
+    ClientSecret:  <your client secret>
+    AuthDomain:    <your auth domain>
   PlaceGroups:
-    - Identifier: Talsperren_TH
-      Title: Talsperren Thüringen
-      Query: collection-name?limit=100&depth=gt.10&select=list,of,columns
+    Identifier: Talsperren_TH
+    Title: Talsperren Thüringen
+    Query: collection-name?limit=100&depth=gt.10&select=list,of,columns
   DatasetRefs:  # place groups are only relevant for those datasets listed here
     - id1
     - id2
   PropertyMapping:
-    - label: column-name
-      color: red
-      description: my-property
+    Label: column-name
+    Color: red
+    Description: my-property
