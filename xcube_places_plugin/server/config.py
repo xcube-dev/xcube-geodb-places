@@ -19,15 +19,31 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-from xcube.util import extension
-from xcube.constants import EXTENSION_POINT_SERVER_APIS
+from xcube.util.jsonschema import JsonArraySchema
+from xcube.util.jsonschema import JsonObjectSchema
+from xcube.util.jsonschema import JsonStringSchema
 
-
-def init_plugin(ext_registry: extension.ExtensionRegistry):
-    ext_registry.add_extension(
-        loader=extension.import_component(
-            'xcube_places_plugin.api:api'
-        ),
-        point=EXTENSION_POINT_SERVER_APIS,
-        name='places_plugin'
-    )
+GPLACES_CONFIG_SCHEMA = JsonObjectSchema(
+    properties=dict(
+        XcubePlaces=JsonObjectSchema(properties=dict(
+            GeoDBConf=JsonObjectSchema(properties=dict(
+                PostgrestUrl=JsonStringSchema(),
+                PostgrestPort=JsonStringSchema(),
+                ClientId=JsonStringSchema(),
+                ClientSecret=JsonStringSchema(),
+                AuthDomain=JsonStringSchema())
+            ),
+            PlaceGroups=JsonObjectSchema(properties=dict(
+                Identifier=JsonStringSchema(min_length=1),
+                Title=JsonStringSchema(),
+                Query=JsonStringSchema())
+            ),
+            DatasetRefs=JsonArraySchema(),
+            PropertyMapping=JsonObjectSchema(properties=dict(
+                Label=JsonStringSchema(),
+                Color=JsonStringSchema(),
+                Description=JsonStringSchema()
+            ))
+        ))),
+    additional_properties=True
+)

@@ -19,15 +19,18 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-from xcube.util import extension
-from xcube.constants import EXTENSION_POINT_SERVER_APIS
+from xcube.server.api import Api
+from xcube.server.api import Context
+
+from .context import PlacesPluginContext
+from ..server.config import GPLACES_CONFIG_SCHEMA
+from ..version import __version__
 
 
-def init_plugin(ext_registry: extension.ExtensionRegistry):
-    ext_registry.add_extension(
-        loader=extension.import_component(
-            'xcube_places_plugin.api:api'
-        ),
-        point=EXTENSION_POINT_SERVER_APIS,
-        name='places_plugin'
-    )
+def create_ctx(root_ctx: Context) -> PlacesPluginContext:
+    return PlacesPluginContext(root_ctx)
+
+
+api = Api('geodb-openeo', version=__version__,
+          config_schema=GPLACES_CONFIG_SCHEMA,
+          create_ctx=create_ctx)

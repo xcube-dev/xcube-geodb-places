@@ -19,15 +19,4 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-from xcube.util import extension
-from xcube.constants import EXTENSION_POINT_SERVER_APIS
-
-
-def init_plugin(ext_registry: extension.ExtensionRegistry):
-    ext_registry.add_extension(
-        loader=extension.import_component(
-            'xcube_places_plugin.api:api'
-        ),
-        point=EXTENSION_POINT_SERVER_APIS,
-        name='places_plugin'
-    )
+from .api import api
