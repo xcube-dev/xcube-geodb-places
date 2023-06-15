@@ -18,19 +18,26 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
-from typing import Mapping, Any, Optional, List
+import json
+import re
+from typing import Mapping, Any, Optional, List, Dict, Hashable
 
-import time
-import requests
 from geopandas import GeoDataFrame
-from xcube.server.api import ApiContext
-from xcube.server.api import Context
 from xcube.constants import LOG
-
+from xcube.server.api import ApiContext, ApiError
+from xcube.server.api import Context
+from xcube.webapi.places import PlacesContext
+from xcube.webapi.places.context import PlaceGroup
 from xcube_geodb.core.geodb import GeoDBClient
 
 
 class PlacesPluginContext(ApiContext):
+
+    def __init__(self, server_ctx: Context):
+        super().__init__(server_ctx)
+        self._places_ctx: PlacesContext = server_ctx.get_api_ctx("places")
+        self.config = dict(server_ctx.config)
+        self.root = server_ctx
 
     @property
     def config(self) -> Mapping[str, Any]:
@@ -42,55 +49,90 @@ class PlacesPluginContext(ApiContext):
         assert isinstance(config, Mapping)
         self._config = dict(config)
 
-    def __init__(self, root: Context):
-        super().__init__(root)
-        self.config = dict(root.config)
-        self.root = root
-
     def on_update(self, prev_context: Optional["Context"]):
         if prev_context:
             self.config = prev_context.config
         self._configure_geodb()
         LOG.debug(f'geodb.whoami: {self.geodb.whoami}')
-        import threading
-        t = threading.Thread(target=self.update_places)
-        t.start()
+        self.update_places()
 
     def update_places(self):
         base_url = f'http://127.0.0.1:{self.root.config["port"]}'  # todo!
-        self._wait_for_server_start(base_url)
         LOG.debug('fetching feature data from geoDB...')
         gdfs = self._run_queries()
         LOG.debug('...done.')
-        url = f'{base_url}/places'
-        LOG.debug(f'Posting feature data to places API at {url}...')
+
+        LOG.debug('adding place groups...')
         for gdf in gdfs:
-            requests.post(url=url, data=gdf.to_json())
-            #  todo - error handling
-        LOG.debug(f'...done.')
+            place_group_config: Dict[Hashable, Any] = dict()
+            for k in gdf.attrs.keys():
+                place_group_config[k] = gdf.attrs[k]
+            place_group = self._create_place_group(place_group_config, base_url, gdf)
+            self._places_ctx.add_place_group(place_group)
+        LOG.debug('...done.')
+
+    def _create_place_group(self,
+                            place_group_config: Dict[Hashable, Any],
+                            base_url: str,
+                            gdf: GeoDataFrame) -> PlaceGroup:
+        place_group_id = place_group_config.get("PlaceGroupRef")
+        if place_group_id:
+            raise ApiError.InvalidServerConfig(
+                "'PlaceGroupRef' cannot be used in a GDF place group"
+            )
+        place_group_id = self._places_ctx.get_place_group_id_safe(
+            place_group_config)
+
+        place_group = self._places_ctx.get_cached_place_group(place_group_id)
+        if place_group is None:
+            place_group_title = place_group_config.get("Title",
+                                                       place_group_id)
+            property_mapping = self._places_ctx.get_property_mapping(
+                base_url, place_group_config)
+            source_encoding = place_group_config.get("CharacterEncoding",
+                                                     "utf-8")
+            place_group = dict(type="FeatureCollection",
+                               features=None,
+                               id=place_group_id,
+                               title=place_group_title,
+                               propertyMapping=property_mapping,
+                               sourcePaths='None',
+                               sourceEncoding=source_encoding)
+
+            self._places_ctx.check_sub_group_configs(place_group_config)
+            self._places_ctx.set_cached_place_group(place_group_id, place_group)
+
+        self.load_gdf_place_group_features(place_group, gdf)
+
+        return place_group
 
     @staticmethod
-    def _wait_for_server_start(base_url):
-        LOG.debug('waiting until server is fully started...')
-        while True:
-            try:
-                requests.get(url=f'{base_url}/places')
-                break
-            except requests.exceptions.ConnectionError:
-                time.sleep(0.1)
-        LOG.debug('ready!')
+    def load_gdf_place_group_features(
+            place_group: PlaceGroup, gdf: GeoDataFrame) -> None:
+        features = place_group.get('features')
+        if features is not None:
+            return features
+        feature_collection = json.loads(gdf.to_json())
+        place_group['features'] = feature_collection['features']
 
     def _run_queries(self) -> List[GeoDataFrame]:
         gdfs = []
-        for place_group in self.config.get('PlaceGroups'):
+        for place_group in self.config.get('XcubePlaces').get('GeoDBPlaceGroups'):
             query = place_group.get('Query')
             dn = query.split('?')[0]
             db_name = dn.split('_')[0]
             collection_name = '_'.join(dn.split('_')[1:])
             constraints = query.split('?')[1]
-            gdfs.append(self.geodb.get_collection(collection_name,
-                                                  query=constraints,
-                                                  database=db_name))
+            if 'geometry' not in constraints:
+                constraints = re.sub(r'&select=(.*)&', r'&select=\1,geometry&', constraints)
+            if 'geometry' not in constraints:
+                constraints = re.sub(r'&select=(.*)$', r'&select=\1,geometry', constraints)
+            gdf = self.geodb.get_collection(collection_name,
+                                            query=constraints,
+                                            database=db_name)
+            for k in place_group.keys():
+                gdf.attrs[k] = place_group[k]
+            gdfs.append(gdf)
         return gdfs
 
     def _configure_geodb(self):

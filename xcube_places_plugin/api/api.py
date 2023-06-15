@@ -31,6 +31,7 @@ def create_ctx(root_ctx: Context) -> PlacesPluginContext:
     return PlacesPluginContext(root_ctx)
 
 
-api = Api('geodb-openeo', version=__version__,
+api = Api('geodb-places', version=__version__,
           config_schema=GPLACES_CONFIG_SCHEMA,
+          required_apis=['datasets', 'places'],
           create_ctx=create_ctx)

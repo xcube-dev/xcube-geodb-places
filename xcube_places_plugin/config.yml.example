@@ -2,19 +2,20 @@
 
 XcubePlaces:
   GeoDBConf:
-    PostgrestUrl:  <geoDB-PostGREST server url>
-    PostgrestPort: <geoDB-PostGREST server port>
-    ClientId:      <your client id>
-    ClientSecret:  <your client secret>
-    AuthDomain:    <your auth domain>
-  PlaceGroups:
-    Identifier: Talsperren_TH
-    Title: Talsperren Thüringen
-    Query: collection-name?limit=100&depth=gt.10&select=list,of,columns
-  DatasetRefs:  # place groups are only relevant for those datasets listed here
-    - id1
-    - id2
-  PropertyMapping:
-    Label: column-name
-    Color: red
-    Description: my-property
+    PostgrestUrl:  'https://xcube-geodb.brockmann-consult.de'
+    PostgrestPort: '443'
+    ClientId:      '86599902a2d04074aa827aa837af28b8'
+    ClientSecret:  'WcOpFSyp4nqK_ZPkqohgTn1G7h4h2j830IUeIuPbQPo'
+    AuthDomain:    'https://xcube-users.brockmann-consult.de/api/v2'
+  GeoDBPlaceGroups:
+    - GeoDBPlaceGroup:
+      Identifier: Talsperren_TH
+      Title: Talsperren Thüringen
+      Query: 'collection-name?limit=100&depth=gt.10&select=list,of,columns'
+      DatasetRefs:  # place groups are only relevant for those datasets listed here
+        - id1
+        - id2
+      PropertyMapping:
+        Label: column-name
+        Color: red
+        Description: my-property

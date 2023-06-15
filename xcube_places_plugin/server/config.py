@@ -23,27 +23,26 @@ from xcube.util.jsonschema import JsonArraySchema
 from xcube.util.jsonschema import JsonObjectSchema
 from xcube.util.jsonschema import JsonStringSchema
 
-GPLACES_CONFIG_SCHEMA = JsonObjectSchema(
-    properties=dict(
-        XcubePlaces=JsonObjectSchema(properties=dict(
-            GeoDBConf=JsonObjectSchema(properties=dict(
-                PostgrestUrl=JsonStringSchema(),
-                PostgrestPort=JsonStringSchema(),
-                ClientId=JsonStringSchema(),
-                ClientSecret=JsonStringSchema(),
-                AuthDomain=JsonStringSchema())
-            ),
-            PlaceGroups=JsonObjectSchema(properties=dict(
+GPLACES_CONFIG_SCHEMA = JsonObjectSchema(properties=dict(
+    XcubePlaces=JsonObjectSchema(properties=dict(
+        GeoDBConf=JsonObjectSchema(properties=dict(
+            PostgrestUrl=JsonStringSchema(),
+            PostgrestPort=JsonStringSchema(),
+            ClientId=JsonStringSchema(),
+            ClientSecret=JsonStringSchema(),
+            AuthDomain=JsonStringSchema())
+        ),
+        GeoDBPlaceGroups=JsonArraySchema(
+            items=JsonObjectSchema(properties=dict(
                 Identifier=JsonStringSchema(min_length=1),
                 Title=JsonStringSchema(),
-                Query=JsonStringSchema())
-            ),
-            DatasetRefs=JsonArraySchema(),
-            PropertyMapping=JsonObjectSchema(properties=dict(
-                Label=JsonStringSchema(),
-                Color=JsonStringSchema(),
-                Description=JsonStringSchema()
+                Query=JsonStringSchema(),
+                DatasetRefs=JsonArraySchema(),
+                PropertyMapping=JsonObjectSchema(properties=dict(
+                    Label=JsonStringSchema(),
+                    Color=JsonStringSchema(),
+                    Description=JsonStringSchema()))
+            )
             ))
-        ))),
-    additional_properties=True
-)
+    ))
+), additional_properties=True)
