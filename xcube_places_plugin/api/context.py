@@ -57,7 +57,6 @@ class PlacesPluginContext(ApiContext):
         self.update_places()
 
     def update_places(self):
-        base_url = f'http://127.0.0.1:{self.root.config["port"]}'  # todo!
         LOG.debug('fetching feature data from geoDB...')
         gdfs = self._run_queries()
         LOG.debug('...done.')
@@ -67,13 +66,13 @@ class PlacesPluginContext(ApiContext):
             place_group_config: Dict[Hashable, Any] = dict()
             for k in gdf.attrs.keys():
                 place_group_config[k] = gdf.attrs[k]
-            place_group = self._create_place_group(place_group_config, base_url, gdf)
-            self._places_ctx.add_place_group(place_group)
+            place_group = self._create_place_group(place_group_config, gdf)
+            dataset_ids = place_group_config['DatasetRefs']
+            self._places_ctx.add_place_group(place_group, dataset_ids)
         LOG.debug('...done.')
 
     def _create_place_group(self,
                             place_group_config: Dict[Hashable, Any],
-                            base_url: str,
                             gdf: GeoDataFrame) -> PlaceGroup:
         place_group_id = place_group_config.get("PlaceGroupRef")
         if place_group_id:
@@ -87,6 +86,8 @@ class PlacesPluginContext(ApiContext):
         if place_group is None:
             place_group_title = place_group_config.get("Title",
                                                        place_group_id)
+            base_url = f'http://{self.root.config["address"]}:' \
+                       f'{self.root.config["port"]}'
             property_mapping = self._places_ctx.get_property_mapping(
                 base_url, place_group_config)
             source_encoding = place_group_config.get("CharacterEncoding",
@@ -117,16 +118,18 @@ class PlacesPluginContext(ApiContext):
 
     def _run_queries(self) -> List[GeoDataFrame]:
         gdfs = []
-        for place_group in self.config.get('XcubePlaces').get('GeoDBPlaceGroups'):
+        for place_group in self.config.get('GeoDBPlaceGroups'):
             query = place_group.get('Query')
             dn = query.split('?')[0]
             db_name = dn.split('_')[0]
             collection_name = '_'.join(dn.split('_')[1:])
             constraints = query.split('?')[1]
             if 'geometry' not in constraints:
-                constraints = re.sub(r'&select=(.*)&', r'&select=\1,geometry&', constraints)
+                constraints = re.sub(
+                    r'select=(.*)&', r'select=\1,geometry&', constraints)
             if 'geometry' not in constraints:
-                constraints = re.sub(r'&select=(.*)$', r'&select=\1,geometry', constraints)
+                constraints = re.sub(
+                    r'select=(.*)$', r'select=\1,geometry', constraints)
             gdf = self.geodb.get_collection(collection_name,
                                             query=constraints,
                                             database=db_name)
@@ -136,7 +139,7 @@ class PlacesPluginContext(ApiContext):
         return gdfs
 
     def _configure_geodb(self):
-        geodb_conf = self.config.get('XcubePlaces').get('GeoDBConf')
+        geodb_conf = self.config.get('GeoDBConf')
         server_url = geodb_conf['PostgrestUrl']
         server_port = geodb_conf['PostgrestPort']
         client_id = geodb_conf['ClientId']
