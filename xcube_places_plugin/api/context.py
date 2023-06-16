@@ -130,6 +130,19 @@ class PlacesPluginContext(ApiContext):
             if 'geometry' not in constraints:
                 constraints = re.sub(
                     r'select=(.*)$', r'select=\1,geometry', constraints)
+            time_aliases = ['time', 'date', 'datetime', 'date-time',
+                            'timestamp']
+            if not any(time_alias in constraints
+                       for time_alias in time_aliases):
+                ci = self.geodb.get_collection_info(collection_name,
+                                                    database=db_name)
+                for t in time_aliases:
+                    if t in ci['properties']:
+                        time_alias = t
+                        break
+                if time_alias:
+                    constraints = constraints.replace('geometry',
+                                                      f'geometry,{time_alias}')
             gdf = self.geodb.get_collection(collection_name,
                                             query=constraints,
                                             database=db_name)
