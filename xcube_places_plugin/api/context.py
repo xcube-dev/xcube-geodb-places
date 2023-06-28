@@ -126,7 +126,7 @@ class PlacesPluginContext(ApiContext):
             constraints = query.split('?')[1]
             if 'geometry' not in constraints:
                 constraints = re.sub(
-                    r'select=(.*)&', r'select=\1,geometry&', constraints)
+                    r'select=(.*?)&', r'select=\1,geometry&', constraints)
             if 'geometry' not in constraints:
                 constraints = re.sub(
                     r'select=(.*)$', r'select=\1,geometry', constraints)
