@@ -18,6 +18,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
+import datetime
 import json
 import re
 from typing import Mapping, Any, Optional, List, Dict, Hashable
@@ -169,9 +170,10 @@ class PlacesPluginContext(ApiContext):
 
     @staticmethod
     def _clean_time_name(properties: Dict):
-        wrong_names = ['datetime', 'timestamp']
-        for n in wrong_names:
+        illegal_names = ['datetime', 'timestamp', 'date-time', 'date']
+        for n in illegal_names:
             if n in properties:
                 properties['time'] = dateutil.parser.parse(
                     properties[n]).isoformat()
+                properties['time'] = (dateutil.parser.parse(properties['time']) + datetime.timedelta(days=970)).isoformat()
                 del properties[n]
