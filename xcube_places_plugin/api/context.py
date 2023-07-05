@@ -22,6 +22,7 @@ import json
 import re
 from typing import Mapping, Any, Optional, List, Dict, Hashable
 
+import dateutil.parser
 from geopandas import GeoDataFrame
 from xcube.constants import LOG
 from xcube.server.api import ApiContext, ApiError
@@ -114,6 +115,8 @@ class PlacesPluginContext(ApiContext):
         if features is not None:
             return features
         feature_collection = json.loads(gdf.to_json())
+        for feature in feature_collection['features']:
+            PlacesPluginContext._clean_time_name(feature['properties'])
         place_group['features'] = feature_collection['features']
 
     def _run_queries(self) -> List[GeoDataFrame]:
@@ -163,3 +166,12 @@ class PlacesPluginContext(ApiContext):
                                  client_id=client_id,
                                  client_secret=client_secret,
                                  auth_aud=auth_domain)
+
+    @staticmethod
+    def _clean_time_name(properties: Dict):
+        wrong_names = ['datetime', 'timestamp']
+        for n in wrong_names:
+            if n in properties:
+                properties['time'] = dateutil.parser.parse(
+                    properties[n]).isoformat()
+                del properties[n]
