@@ -19,28 +19,28 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-from xcube.util.jsonschema import JsonArraySchema
+from xcube.util.jsonschema import JsonArraySchema, JsonIntegerSchema
 from xcube.util.jsonschema import JsonObjectSchema
 from xcube.util.jsonschema import JsonStringSchema
 
 GPLACES_CONFIG_SCHEMA = JsonObjectSchema(properties=dict(
     GeoDBConf=JsonObjectSchema(properties=dict(
         PostgrestUrl=JsonStringSchema(),
-        PostgrestPort=JsonStringSchema(),
+        PostgrestPort=JsonIntegerSchema(),
         ClientId=JsonStringSchema(),
         ClientSecret=JsonStringSchema(),
-        AuthDomain=JsonStringSchema())
-    ),
-    GeoDBPlaceGroups=JsonArraySchema(
-        items=JsonObjectSchema(properties=dict(
-            Identifier=JsonStringSchema(min_length=1),
-            Title=JsonStringSchema(),
-            Query=JsonStringSchema(),
-            DatasetRefs=JsonArraySchema(),
-            PropertyMapping=JsonObjectSchema(properties=dict(
-                Label=JsonStringSchema(),
-                Color=JsonStringSchema(),
-                Description=JsonStringSchema()))
+        AuthDomain=JsonStringSchema(),
+        PlaceGroups=JsonArraySchema(
+            JsonObjectSchema(properties=dict(
+                Identifier=JsonStringSchema(min_length=1),
+                Title=JsonStringSchema(),
+                Query=JsonStringSchema(),
+                DatasetRefs=JsonArraySchema(),
+                PropertyMapping=JsonObjectSchema(properties=dict(
+                    label=JsonStringSchema(),
+                    color=JsonStringSchema(),
+                    description=JsonStringSchema()))
+            ))
         )
-        ))
+    )),
 ), additional_properties=True)

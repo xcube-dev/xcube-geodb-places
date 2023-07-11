@@ -20,6 +20,7 @@
 # DEALINGS IN THE SOFTWARE.
 import datetime
 import json
+import os
 import re
 from typing import Mapping, Any, Optional, List, Dict, Hashable
 
@@ -103,7 +104,8 @@ class PlacesPluginContext(ApiContext):
                                sourceEncoding=source_encoding)
 
             self._places_ctx.check_sub_group_configs(place_group_config)
-            self._places_ctx.set_cached_place_group(place_group_id, place_group)
+            self._places_ctx.set_cached_place_group(place_group_id,
+                                                    place_group)
 
         self.load_gdf_place_group_features(place_group, gdf)
 
@@ -122,7 +124,7 @@ class PlacesPluginContext(ApiContext):
 
     def _run_queries(self) -> List[GeoDataFrame]:
         gdfs = []
-        for place_group in self.config.get('GeoDBPlaceGroups'):
+        for place_group in self.config.get('GeoDBConf').get('PlaceGroups'):
             query = place_group.get('Query')
             dn = query.split('?')[0]
             db_name = dn.split('_')[0]
@@ -157,16 +159,21 @@ class PlacesPluginContext(ApiContext):
 
     def _configure_geodb(self):
         geodb_conf = self.config.get('GeoDBConf')
-        server_url = geodb_conf['PostgrestUrl']
-        server_port = geodb_conf['PostgrestPort']
-        client_id = geodb_conf['ClientId']
-        client_secret = geodb_conf['ClientSecret']
-        auth_domain = geodb_conf['AuthDomain']
+        server_url = self._get_property_value(geodb_conf, 'PostgrestUrl')
+        server_port = self._get_property_value(geodb_conf, 'PostgrestPort')
+        client_id = self._get_property_value(geodb_conf, 'ClientId')
+        client_secret = self._get_property_value(geodb_conf, 'ClientSecret')
+        auth_domain = self._get_property_value(geodb_conf, 'AuthDomain')
         self.geodb = GeoDBClient(server_url=server_url,
                                  server_port=server_port,
                                  client_id=client_id,
                                  client_secret=client_secret,
                                  auth_aud=auth_domain)
+
+    @staticmethod
+    def _get_property_value(geodb_conf, property_name):
+        return os.environ[property_name] if property_name in os.environ else \
+            geodb_conf[property_name]
 
     @staticmethod
     def _clean_time_name(properties: Dict):
@@ -175,5 +182,4 @@ class PlacesPluginContext(ApiContext):
             if n in properties:
                 properties['time'] = dateutil.parser.parse(
                     properties[n]).isoformat()
-                properties['time'] = (dateutil.parser.parse(properties['time']) + datetime.timedelta(days=970)).isoformat()
                 del properties[n]

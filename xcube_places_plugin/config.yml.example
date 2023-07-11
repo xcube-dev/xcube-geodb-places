@@ -1,20 +1,20 @@
 # adapt to your needs and save as config.yml
 
-XcubePlaces:
-  GeoDBConf:
-    PostgrestUrl:  'https://xcube-geodb.brockmann-consult.de'
-    PostgrestPort: '443'
-    ClientId:      '86599902a2d04074aa827aa837af28b8'
-    ClientSecret:  'WcOpFSyp4nqK_ZPkqohgTn1G7h4h2j830IUeIuPbQPo'
-    AuthDomain:    'https://xcube-users.brockmann-consult.de/api/v2'
-  GeoDBPlaceGroups:
-    - GeoDBPlaceGroup:
-      Identifier: Talsperren_TH
-      Title: Talsperren Thüringen
-      Query: 'collection-name?limit=100&depth=gt.10&select=list,of,columns'
+GeoDBConf:
+  # PostgrestUrl, PostgrestPort, ClientId, ClientSecret and AuthDomain can also be provided as environment variables.
+  # Environment variables have precedence over the config file.
+  PostgrestUrl:  https://xcube-geodb.brockmann-consult.de
+  PostgrestPort: 443
+  ClientId:      <your_client_id>
+  ClientSecret:  <your_client_secret>
+  AuthDomain:    https://xcube-users.brockmann-consult.de/api/v2
+  PlaceGroups:
+    - PlaceGroup:
+      Identifier: <place_group_identifier>
+      Title: <place_group_title>
+      Query: collection-name?limit=100&depth=gt.10&select=list,of,columns
       DatasetRefs:  # place groups are only relevant for those datasets listed here
-        - id1
-        - id2
+      - <some_dataset>
       PropertyMapping:
         Label: column-name
         Color: red
