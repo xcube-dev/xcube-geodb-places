@@ -1,21 +1,21 @@
 # adapt to your needs and save as config.yml
 
 GeoDBConf:
-  # PostgrestUrl, PostgrestPort, ClientId, ClientSecret and AuthDomain can also be provided as environment variables.
+  # GEODB_API_SERVER_URL, GEODB_API_SERVER_PORT, GEODB_AUTH_CLIENT_ID, GEODB_AUTH_CLIENT_SECRET and GEODB_AUTH_AUD can
+  # also be provided as environment variables.
   # Environment variables have precedence over the config file.
-  PostgrestUrl:  https://xcube-geodb.brockmann-consult.de
-  PostgrestPort: 443
-  ClientId:      <your_client_id>
-  ClientSecret:  <your_client_secret>
-  AuthDomain:    https://xcube-users.brockmann-consult.de/api/v2
+  GEODB_API_SERVER_URL:      https://xcube-geodb.brockmann-consult.de
+  GEODB_API_SERVER_PORT:     443
+  GEODB_AUTH_CLIENT_ID:      <your_client_id>
+  GEODB_AUTH_CLIENT_SECRET:  <your_client_secret>
+  GEODB_AUTH_AUD:            https://xcube-users.brockmann-consult.de/api/v2
   PlaceGroups:
-    - PlaceGroup:
-      Identifier: <place_group_identifier>
+    - Identifier: <place_group_identifier>
       Title: <place_group_title>
       Query: collection-name?limit=100&depth=gt.10&select=list,of,columns
       DatasetRefs:  # place groups are only relevant for those datasets listed here
       - <some_dataset>
       PropertyMapping:
-        Label: column-name
-        Color: red
-        Description: my-property
+        label: column-name
+        color: column-name
+        description: column-name

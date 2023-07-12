@@ -25,11 +25,11 @@ from xcube.util.jsonschema import JsonStringSchema
 
 GPLACES_CONFIG_SCHEMA = JsonObjectSchema(properties=dict(
     GeoDBConf=JsonObjectSchema(properties=dict(
-        PostgrestUrl=JsonStringSchema(),
-        PostgrestPort=JsonIntegerSchema(),
-        ClientId=JsonStringSchema(),
-        ClientSecret=JsonStringSchema(),
-        AuthDomain=JsonStringSchema(),
+        GEODB_API_SERVER_URL=JsonStringSchema(),
+        GEODB_API_SERVER_PORT=JsonIntegerSchema(),
+        GEODB_AUTH_CLIENT_ID=JsonStringSchema(),
+        GEODB_AUTH_CLIENT_SECRET=JsonStringSchema(),
+        GEODB_AUTH_AUD=JsonStringSchema(),
         PlaceGroups=JsonArraySchema(
             JsonObjectSchema(properties=dict(
                 Identifier=JsonStringSchema(min_length=1),

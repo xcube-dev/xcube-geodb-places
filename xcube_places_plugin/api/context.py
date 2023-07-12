@@ -159,21 +159,45 @@ class PlacesPluginContext(ApiContext):
 
     def _configure_geodb(self):
         geodb_conf = self.config.get('GeoDBConf')
-        server_url = self._get_property_value(geodb_conf, 'PostgrestUrl')
-        server_port = self._get_property_value(geodb_conf, 'PostgrestPort')
-        client_id = self._get_property_value(geodb_conf, 'ClientId')
-        client_secret = self._get_property_value(geodb_conf, 'ClientSecret')
-        auth_domain = self._get_property_value(geodb_conf, 'AuthDomain')
+        server_url = self._get_property_value(geodb_conf,
+                                              'GEODB_API_SERVER_URL')
+        server_port = self._get_property_value(geodb_conf,
+                                               'GEODB_API_SERVER_PORT')
+        client_id = self._get_property_value(geodb_conf,
+                                             'GEODB_AUTH_CLIENT_ID', True)
+        client_secret = self._get_property_value(geodb_conf,
+                                                 'GEODB_AUTH_CLIENT_SECRET',
+                                                 True)
+
+        # must be mandatory because the default value is wrong, see
+        # https://github.com/dcs4cop/xcube-geodb/issues/80
+        auth_audience = self._get_property_value(geodb_conf,
+                                                 'GEODB_AUTH_AUD',
+                                                 True)
         self.geodb = GeoDBClient(server_url=server_url,
                                  server_port=server_port,
                                  client_id=client_id,
                                  client_secret=client_secret,
-                                 auth_aud=auth_domain)
+                                 auth_aud=auth_audience)
 
     @staticmethod
-    def _get_property_value(geodb_conf, property_name):
-        return os.environ[property_name] if property_name in os.environ else \
-            geodb_conf[property_name]
+    def _get_property_value(geodb_conf: dict, property_name: str,
+                            mandatory: bool = False):
+        if mandatory:
+            if property_name in os.environ:
+                return os.environ[property_name]
+            elif property_name in geodb_conf:
+                return geodb_conf[property_name]
+            else:
+                raise ValueError(f'mandatory configuration property '
+                                 f'{property_name} not set.')
+        else:
+            if property_name in os.environ:
+                return os.environ[property_name]
+            elif property_name in geodb_conf:
+                return geodb_conf[property_name]
+            else:
+                return None
 
     @staticmethod
     def _clean_time_name(properties: Dict):
