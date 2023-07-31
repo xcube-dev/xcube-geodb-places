@@ -55,9 +55,9 @@ class PlacesPluginContext(ApiContext):
     def on_update(self, prev_context: Optional["Context"]):
         if prev_context:
             self.config = prev_context.config
-        self._configure_geodb()
-        LOG.debug(f'geodb.whoami: {self.geodb.whoami}')
-        self.update_places()
+        if self._configure_geodb():
+            LOG.debug(f'geodb.whoami: {self.geodb.whoami}')
+            self.update_places()
 
     def update_places(self):
         LOG.debug('fetching feature data from geoDB...')
@@ -142,6 +142,7 @@ class PlacesPluginContext(ApiContext):
                        for time_alias in time_aliases):
                 ci = self.geodb.get_collection_info(collection_name,
                                                     database=db_name)
+                time_alias = None
                 for t in time_aliases:
                     if t in ci['properties']:
                         time_alias = t
@@ -157,7 +158,9 @@ class PlacesPluginContext(ApiContext):
             gdfs.append(gdf)
         return gdfs
 
-    def _configure_geodb(self):
+    def _configure_geodb(self) -> bool:
+        if 'GeoDBConf' not in self.config:
+            return False
         geodb_conf = self.config.get('GeoDBConf')
         server_url = self._get_property_value(geodb_conf,
                                               'GEODB_API_SERVER_URL')
@@ -179,6 +182,7 @@ class PlacesPluginContext(ApiContext):
                                  client_id=client_id,
                                  client_secret=client_secret,
                                  auth_aud=auth_audience)
+        return True
 
     @staticmethod
     def _get_property_value(geodb_conf: dict, property_name: str,
