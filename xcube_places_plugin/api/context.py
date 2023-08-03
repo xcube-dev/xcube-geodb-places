@@ -153,6 +153,7 @@ class PlacesPluginContext(ApiContext):
             gdf = self.geodb.get_collection(collection_name,
                                             query=constraints,
                                             database=db_name)
+            gdf.to_crs(crs='EPSG:4326', inplace=True)
             for k in place_group.keys():
                 gdf.attrs[k] = place_group[k]
             gdfs.append(gdf)
