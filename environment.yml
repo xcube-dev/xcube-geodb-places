@@ -6,7 +6,7 @@ dependencies:
   # Python
   - python >=3.6
   # Required
-  - xcube
+  - xcube >= 1.0.3
   - xcube_geodb
   - requests
   - python-fastjsonschema

@@ -1,0 +1,35 @@
+package:
+  name: xcube_places_plugin
+  version: 0.0.1
+
+source:
+  url: <tbd>
+  sha256: <tbd>>
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+  number: 0
+
+requirements:
+  host:
+    - python >=3.6
+    - pip
+  run:
+    - python
+    - xcube >= 1.0.3
+    - xcube_geodb
+    - requests
+    - python-fastjsonschema
+
+about:
+  summary: xcube_places_plugin allows to load features from geoDB as xcube places
+  home: https://github.com/dcs4cop/xcube-geodb-places
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  description: xcube_places_plugin allows to load features from geoDB as xcube places
+
+extra:
+  recipe-maintainers:
+    - thomasstorm
