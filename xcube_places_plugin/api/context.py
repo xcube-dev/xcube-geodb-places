@@ -32,6 +32,7 @@ from xcube.server.api import Context
 from xcube.webapi.places import PlacesContext
 from xcube.webapi.places.context import PlaceGroup
 from xcube_geodb.core.geodb import GeoDBClient
+from xcube.util.frozen import Frozen
 
 
 class PlacesPluginContext(ApiContext):
@@ -125,6 +126,8 @@ class PlacesPluginContext(ApiContext):
     def _run_queries(self) -> List[GeoDataFrame]:
         gdfs = []
         for place_group in self.config.get('GeoDBConf').get('PlaceGroups'):
+            if isinstance(place_group, Frozen):
+                place_group = place_group.defrost()
             query = place_group.get('Query')
             dn = query.split('?')[0]
             db_name = dn.split('_')[0]
