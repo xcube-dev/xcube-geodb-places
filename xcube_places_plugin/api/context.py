@@ -70,7 +70,7 @@ class PlacesPluginContext(ApiContext):
             for k in gdf.attrs.keys():
                 place_group_config[k] = gdf.attrs[k]
             place_group = self._create_place_group(place_group_config, gdf)
-            dataset_ids = place_group_config['DatasetRefs']
+            dataset_ids = place_group_config.get('DatasetRefs', [])
             self._places_ctx.add_place_group(place_group, dataset_ids)
         LOG.debug('...done.')
 
