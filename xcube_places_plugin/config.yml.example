@@ -1,14 +1,17 @@
 # adapt to your needs and save as config.yml
 
 GeoDBConf:
-  # GEODB_API_SERVER_URL, GEODB_API_SERVER_PORT, GEODB_AUTH_CLIENT_ID, GEODB_AUTH_CLIENT_SECRET and GEODB_AUTH_AUD can
-  # also be provided as environment variables.
+  # GEODB_API_SERVER_URL, GEODB_API_SERVER_PORT, GEODB_AUTH_CLIENT_ID,
+  # GEODB_AUTH_CLIENT_SECRET, GEODB_AUTH_AUD, GEODB_AUTH_DOMAIN and GEOSERVER_SERVER_URL
+  # can also be provided as environment variables.
   # Environment variables have precedence over the config file.
   GEODB_API_SERVER_URL:      https://xcube-geodb.brockmann-consult.de
   GEODB_API_SERVER_PORT:     443
   GEODB_AUTH_CLIENT_ID:      <your_client_id>
   GEODB_AUTH_CLIENT_SECRET:  <your_client_secret>
   GEODB_AUTH_AUD:            https://xcube-users.brockmann-consult.de/api/v2
+  GEODB_AUTH_DOMAIN:         https://winchester.production.brockmann-consult.de/winchester
+  GEOSERVER_SERVER_URL:      https://winchester.production.brockmann-consult.de/winchester
   PlaceGroups:
     - Identifier: <place_group_identifier>
       Title: <place_group_title>
