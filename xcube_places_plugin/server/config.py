@@ -30,6 +30,8 @@ GPLACES_CONFIG_SCHEMA = JsonObjectSchema(properties=dict(
         GEODB_AUTH_CLIENT_ID=JsonStringSchema(),
         GEODB_AUTH_CLIENT_SECRET=JsonStringSchema(),
         GEODB_AUTH_AUD=JsonStringSchema(),
+        GEODB_AUTH_DOMAIN=JsonStringSchema(),
+        GEOSERVER_SERVER_URL=JsonStringSchema(),
         PlaceGroups=JsonArraySchema(
             JsonObjectSchema(properties=dict(
                 Identifier=JsonStringSchema(min_length=1),

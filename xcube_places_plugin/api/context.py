@@ -175,17 +175,22 @@ class PlacesPluginContext(ApiContext):
         client_secret = self._get_property_value(geodb_conf,
                                                  'GEODB_AUTH_CLIENT_SECRET',
                                                  True)
-
         # must be mandatory because the default value is wrong, see
         # https://github.com/dcs4cop/xcube-geodb/issues/80
         auth_audience = self._get_property_value(geodb_conf,
                                                  'GEODB_AUTH_AUD',
                                                  True)
+        auth_domain = self._get_property_value(geodb_conf,
+                                                 'GEODB_AUTH_DOMAIN')
+        gs_server_url = self._get_property_value(geodb_conf,
+                                                 'GEOSERVER_SERVER_URL')
         self.geodb = GeoDBClient(server_url=server_url,
                                  server_port=server_port,
                                  client_id=client_id,
                                  client_secret=client_secret,
-                                 auth_aud=auth_audience)
+                                 auth_aud=auth_audience,
+                                 auth_domain=auth_domain,
+                                 gs_server_url=gs_server_url)
         return True
 
     @staticmethod
